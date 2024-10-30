@@ -2,99 +2,134 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;  
 use Illuminate\Http\Request;
+use App\Models\Student;
 
 class StudentController extends Controller
 {
-
-    public function getUser()
-    {
-        $user = [
-            'nama' => 'Muhammad Nizar Al-Faiq',
-            'jurusan' => 'Teknik Informatika' 
-        ];
-
-        return response()->json($user, 200);
-    }
-
-    // public function index()
-    // {
-    //     $students = Student::all();  
-    //     return view('students.index', compact('students'));
-
-    // }
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         $students = Student::all();
-    
-        $data = [
-            'message' => 'Get all students',
-            'data' => $students
-        ];
-    
-        return response()->json($data);  
-    }
-    
 
-    public function store(Request $request) {
+        $response = [
+            'data' => $students,
+            'message' => 'Berhasil menampilkan semua data students'
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
         $input = [
-            'nama' => $request->nama,
+            'name' => $request->name,
             'nim' => $request->nim,
             'email' => $request->email,
-            'jurusan' => $request->jurusan,
-        ];
+            'jurusan' => $request->jurusan
+           ];
+
+           $students = Student::create($input);
+
+           $response = [
+            'message' => 'Successfully create new student',
+            'data' => $students
+           ];
+
+           return response()->json($response, 201);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $student = Student::find($id);
+
+        if (!$student) {
+
+            $data = [
+                'message' => 'Get detail student',
+                'data' => $student,
+            ];
+
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'message' => 'Student not found',
+            ];
+
+            return response()->json($data, 404);
+        }
+
+       
+    }
+
+    /**
+
+     */
+    public function update(Request $request, $id) {
+   
+        $student = Student::find($id);
     
-        $student = Student::create($input);
+        if ($student) {
+           
+            $input = [
+                'nama' => $request->nama ?? $student->nama,
+                'nim' => $request->nim ?? $student->nim,
+                'email' => $request->email ?? $student->email,
+                'jurusan' => $request->jurusan ?? $student->jurusan
+            ];
     
-        $data = [
-            'message' => 'Student is created successfully',
-            'data' => $student,
-        ];
+           
+            $student->update($input);
     
-        return response()->json($data, 201);
+            $data = [
+                'message' => 'Student is updated',
+                'data' => $student
+            ];
+    
+            
+            return response()->json($data, 200);
+        } else {
+            $data = [
+                'message' => 'Student not found'
+            ];
+    
+            return response()->json($data, 404);
+        }
     }
     
 
-    public function update(Request $request, $id)
-{
-   
-    $request->validate([
-        'nama' => 'sometimes|required|string|max:255',
-        'nim' => 'sometimes|required|string|max:20|unique:students,nim,'.$id, 
-        'email' => 'sometimes|required|string|email|max:255|unique:students,email,'.$id,
-        'jurusan' => 'sometimes|required|string|max:255',
-    ]);
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy( $id)
+    {
+        $student = Student::find($id);
 
-    
-    $student = Student::findOrFail($id); 
+        if ($student) {
 
-    
-    $student->update($request->all());
+            $student->delete();
 
-    
-    $data = [
-        'message' => 'Student updated successfully',
-        'data' => $student,
-    ];
+            $data = [
+                'message' => 'Student is deleted'
+            ];
+            return response()->json($data, 200);
+        }
 
-    return response()->json($data, 200);
-}
+        else {
+            $data = [
+                'message' => 'Student not found'
+            ];
 
-public function destroy($id)
-{
-   
-    $student = Student::findOrFail($id); 
+            return response()->json($data, 404);
+        }
 
-
-    $student->delete();
-
-   
-    $data = [
-        'message' => 'Student deleted successfully',
-    ];
-
-    return response()->json($data, 200);
-}
-
+    }
 }

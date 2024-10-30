@@ -8,14 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
 
+    protected $table = "students";
 
-    public static function getAllStudents()
-    {
-        $students = DB::select('select * from students');
-        return $students;
-    }
-
-    protected $fillable = ['nama', 'nim', 'email', 'jurusan'];
+    protected $fillable = ['id','name', 'nim', 'email', 'jurusan', 'created_at','updated_at'];
 }
 
 
